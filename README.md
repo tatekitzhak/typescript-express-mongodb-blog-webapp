@@ -1,4 +1,15 @@
 # Structure of a Project: TypeScript, Node.js, Express and MongoDB Web Application
+
+``` bash
+|Domain                 | Method       | URI                                  | Action  | Name  |
+|-----------------------|:------------:| ------------------------------------:| -------:|------:|
+| http://localhost:3000 |GET           | /                                    |         |       |
+|                       |GET           | /api                                 |         |       |
+|                       |GET           | /api/blods                           |         |       |
+|                       |GET           |/api/blod/:id                         |         |       |
+|                       |GET           |/category/subcategory/topics/article  |         |       |  
+```
+
 ``` bash
 ├── build
 ├── src
@@ -75,3 +86,12 @@
 ├── tsconfig.json
 └── tslint.json
 ```
+
+# Remove and clean dependencies
+- `rm -rf ./**/node_modules`
+- `npm cache verify`
+- `npm cache clean`
+- `npm cache clean -f`
+- `rm -rf node_modules`
+- `rm package-lock.json`
+- `rm -rf package-lock.json`
