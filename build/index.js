@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const server_1 = tslib_1.__importDefault(require("./server"));
+const errorHandler_1 = require("./errors/errorHandler");
+/*
+
+Error loading page
+It looks like your internet connection is down. Please check it.
+
+*/
+const HOST = "localhost";
+const PORT = 4000;
+server_1.default.use(errorHandler_1.errorHandler);
+const server = server_1.default.listen(PORT, () => {
+    console.log(`Server (${'NODE_ENV'}) running on port http://${HOST}:${PORT}`);
+});
+['SIGINT', 'SIGTERM', 'SIGQUIT']
+    .forEach(signal => process.on(signal, () => {
+    /** do your logic */
+    server.close(() => {
+        process.exit();
+    });
+    setTimeout(() => process.exit(1), 10000).unref(); // Force shutdown after 10s
+}));
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi9zcmMvaW5kZXgudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O0FBQUEsOERBQTJCO0FBRzNCLHdEQUFxRDtBQUtyRDs7Ozs7RUFLRTtBQUVGLE1BQU0sSUFBSSxHQUFXLFdBQVcsQ0FBQztBQUNqQyxNQUFNLElBQUksR0FBVyxJQUFJLENBQUM7QUFFMUIsZ0JBQUcsQ0FBQyxHQUFHLENBQUMsMkJBQVksQ0FBQyxDQUFDO0FBQ3RCLE1BQU0sTUFBTSxHQUFHLGdCQUFHLENBQUMsTUFBTSxDQUFDLElBQUksRUFBRSxHQUFHLEVBQUU7SUFDbkMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxXQUFXLFVBQVUsNEJBQTRCLElBQUksSUFBSSxJQUFJLEVBQUUsQ0FBQyxDQUFDO0FBQy9FLENBQUMsQ0FBQyxDQUFDO0FBRUgsQ0FBQyxRQUFRLEVBQUUsU0FBUyxFQUFFLFNBQVMsQ0FBQztLQUM3QixPQUFPLENBQUMsTUFBTSxDQUFDLEVBQUUsQ0FBQyxPQUFPLENBQUMsRUFBRSxDQUFDLE1BQU0sRUFBRSxHQUFHLEVBQUU7SUFDekMsb0JBQW9CO0lBQ3BCLE1BQU0sQ0FBQyxLQUFLLENBQUMsR0FBRyxFQUFFO1FBQ2hCLE9BQU8sQ0FBQyxJQUFJLEVBQUUsQ0FBQztJQUNqQixDQUFDLENBQUMsQ0FBQztJQUNILFVBQVUsQ0FBQyxHQUFHLEVBQUUsQ0FBQyxPQUFPLENBQUMsSUFBSSxDQUFDLENBQUMsQ0FBQyxFQUFFLEtBQUssQ0FBQyxDQUFDLEtBQUssRUFBRSxDQUFDLENBQUMsMkJBQTJCO0FBQy9FLENBQUMsQ0FBQyxDQUFDLENBQUMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgYXBwIGZyb20gXCIuL3NlcnZlclwiO1xuXG5cbmltcG9ydCB7IGVycm9ySGFuZGxlciB9IGZyb20gJy4vZXJyb3JzL2Vycm9ySGFuZGxlcic7XG5pbXBvcnQgeyBWYWxpZGF0aW9uRXJyb3IsIE5vdEZvdW5kRXJyb3IgfSBmcm9tICcuL2Vycm9ycy9lcnJvcic7XG5cblxuXG4vKiBcblxuRXJyb3IgbG9hZGluZyBwYWdlXG5JdCBsb29rcyBsaWtlIHlvdXIgaW50ZXJuZXQgY29ubmVjdGlvbiBpcyBkb3duLiBQbGVhc2UgY2hlY2sgaXQuXG5cbiovXG5cbmNvbnN0IEhPU1Q6IHN0cmluZyA9IFwibG9jYWxob3N0XCI7IFxuY29uc3QgUE9SVDogbnVtYmVyID0gNDAwMDtcblxuYXBwLnVzZShlcnJvckhhbmRsZXIpO1xuY29uc3Qgc2VydmVyID0gYXBwLmxpc3RlbihQT1JULCAoKSA9PiB7XG4gIGNvbnNvbGUubG9nKGBTZXJ2ZXIgKCR7J05PREVfRU5WJ30pIHJ1bm5pbmcgb24gcG9ydCBodHRwOi8vJHtIT1NUfToke1BPUlR9YCk7XG59KTtcblxuWydTSUdJTlQnLCAnU0lHVEVSTScsICdTSUdRVUlUJ11cbiAgLmZvckVhY2goc2lnbmFsID0+IHByb2Nlc3Mub24oc2lnbmFsLCAoKSA9PiB7XG4gICAgLyoqIGRvIHlvdXIgbG9naWMgKi9cbiAgICBzZXJ2ZXIuY2xvc2UoKCkgPT4ge1xuICAgICAgcHJvY2Vzcy5leGl0KCk7XG4gICAgfSk7XG4gICAgc2V0VGltZW91dCgoKSA9PiBwcm9jZXNzLmV4aXQoMSksIDEwMDAwKS51bnJlZigpOyAvLyBGb3JjZSBzaHV0ZG93biBhZnRlciAxMHNcbiAgfSkpOyJdfQ==
