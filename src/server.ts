@@ -1,6 +1,6 @@
 import express, { type Express, Request, Response, NextFunction } from "express";
 
-import { blogsRouter } from "./api/blogsRouter";
+import { blogsRouter } from "./routes/blog.routes";
 
 // import {errorHandler} from "./errors/errorHandler";
 
@@ -16,6 +16,13 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/", blogsRouter);
 
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({
+        success: true,
+        status: 'success',
+        message: 'Welcome to the Blog API',
+    });
+});
 
 // Error handlers
 app.get('*', (req: Request, res: Response, next: NextFunction) => {
@@ -32,6 +39,7 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
 (async () => {
     await console.log('dbCreateConnection:server:')
 })();
+
 export default app;
 
 

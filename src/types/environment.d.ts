@@ -9,6 +9,9 @@ declare global {
       MONGODB_DB: string;
       NODE_ENV: 'development' | 'production' | 'test';
       HOST: string;
+      REDIS_PORT: number;
+      APP_PORT: number;
+      uri: string;
     }
   }
 }
