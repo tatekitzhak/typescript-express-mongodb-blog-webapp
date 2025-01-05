@@ -23,6 +23,6 @@ const server = app.listen(appPort, () => {
     setTimeout(() => process.exit(1), 10000).unref(); // Force shutdown after 10s
   }));
 
-  (async () => {
-   console.log('dbCreateConnection:index:')
-  })();
+(async () => {
+  console.log('dbCreateConnection:index:')
+})();

@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export {};
+export { };
 /* eslint-disable no-var */
 // export {};
 // ⛔️ Error: Augmentations for the global

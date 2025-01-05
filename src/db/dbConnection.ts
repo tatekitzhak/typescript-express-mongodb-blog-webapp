@@ -30,10 +30,10 @@ async function connectToDatabase(): Promise<{
 
   try {
     const mongoclient = await MongoClient.connect(uri);
-    
+
     // Establish and verify a MongoDB server connection: Send a ping to confirm a successful connection
     const ping_res = await mongoclient.db().admin().ping(); // await mongoclient.db().admin().command({ ping: 1 });
-   
+
     console.log('MongoDB server connection successful, ping:', ping_res);
 
     // connect to specific database
@@ -45,9 +45,9 @@ async function connectToDatabase(): Promise<{
 
     db.collection("category").find({}).toArray().then((data) => {
       // console.log("Data::", data);
-    } );
+    });
 
-    console.log(`Database connection success. Connection name: '${ mongoclient }' Database name: '${ db.databaseName}'`);
+    console.log(`Database connection success. Connection name: '${mongoclient}' Database name: '${db.databaseName}'`);
     return { mongoclient, db, collections };
   } catch (error: any) {
     throw new Error(error?.message ?? error.toString());
@@ -65,7 +65,7 @@ async function connectToDatabase(): Promise<{
 // } ).finally(() => { 
 //   // client.close();
 //   // console.log("Database connection closed");
- 
+
 //   });
 
 export { connectToDatabase };

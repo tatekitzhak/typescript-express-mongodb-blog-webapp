@@ -22,7 +22,7 @@ class NotFoundError extends BaseError {
 // validation error class
 class ValidationError extends BaseError {
     errorData: Record<string, string>[]
-    constructor(data: Record<string,string>[]) {
+    constructor(data: Record<string, string>[]) {
         super("Validation Error", 400)
         this.errorData = data
         Object.setPrototypeOf(this, ValidationError.prototype)

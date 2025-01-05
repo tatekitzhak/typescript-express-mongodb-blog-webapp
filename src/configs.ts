@@ -1,13 +1,13 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-type  ConnectionEnv = 'app'| 'db' | 'redis';
+type ConnectionEnv = 'app' | 'db' | 'redis';
 
-interface ConnectionInfo {    
+interface ConnectionInfo {
     [name: string]: string | number | undefined
 };
 
-export let ConnectionConfig: Record<ConnectionEnv, ConnectionInfo> = {
+export const ConnectionConfig: Record<ConnectionEnv, ConnectionInfo> = {
     "db": {
         uri: process.env.MONGODB_URI,
         dbName: process.env.MONGODB_DB
