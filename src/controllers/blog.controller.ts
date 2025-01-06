@@ -1,59 +1,72 @@
-import { Request, Response, RequestHandler } from 'express';
+import { Request, Response, RequestHandler, NextFunction } from 'express';
+
+import url from 'url';
+import querystring from 'querystring';
 
 import { DatabaseService } from '../db/databaseService';
 
-import { connectToDatabase } from '../db/dbConnection';
 import * as database from "../blogs/blogs.database";
 import { UnitUser, EnumServiceGetOrderBy } from "../blogs/blog.interface";
+import { ConnectionConfig } from "../configs";
 
 
-connectToDatabase().then(({ mongoclient, db, collections }) => {
-    console.log("Database connected::", db.databaseName);
-    // console.log("Collections::", collections);  
-    // do something with the database
-    const datatbase = mongoclient.db('convertxt3');
-    const collections1 = datatbase.collection("category").find({}).toArray().then((data) => {
-        //console.log("Data::", data);
-        return data;
-    });
-    console.log("Collections::", collections1);
+interface CustomRequest extends Request {
+    request_data?: any;
+    requestInfo?: any;
+}
 
-}).catch((e) => {
-    console.error("Database connection error::", e);
-}).finally(() => {
-    // client.close();
-    // console.log("Database connection closed");
-
-});
+let uri: string = ConnectionConfig.db['uri'] as string;
+let dbName = process.env.MONGODB_DB;
 
 
 export class BlogController {
 
-    static getBlog(req: Request, res: Response) {
+    static async getBlog(req: Request, res: Response, next: NextFunction) {
 
-        const helloDatabaseService = new DatabaseService('mongodb://localhost:27017');
-        helloDatabaseService.helloDatabaseService();
-        return res.status(200).json({
-            data: 'helloDatabaseService'
-        });
-        /* 
-                const data = cache.get("data");
-                if (data) {
-                  console.log("serving from cache");
-                  return res.status(200).json({
-                    data,
-                  });
-                  
-                } else {
-                  console.log("serving from db");
-                  const movieRepository = AppDataSource.getRepository(Movie);
-                  const movies = await movieRepository.find();
-                  cache.put("data", movies, 10000);
-                  return res.status(200).json({
-                    data: movies,
-                  });
-                }
-             */
+        try {
+            const full_url_path = `${req.protocol}://${req.get('host')}${req.originalUrl}`,
+                parse_url_path = url.parse(full_url_path),
+                category_subcategory_info = querystring.parse(parse_url_path.query || ''),
+                subcategory_id = category_subcategory_info['subcategory_id'],
+                parse_url = new URL(full_url_path);
+
+            //Print the url object.
+            const urlObject = {
+                "Href": parse_url.href,
+                "Origin": parse_url.origin,
+                "Protocol": parse_url.protocol,
+                "Username": parse_url.username,
+                "Password": parse_url.password,
+                "Host": parse_url.host,
+                "Hostname": parse_url.hostname,
+                "Port": parse_url.port,
+                "Pathname": parse_url.pathname,
+                "Search": parse_url.search,
+                "SearchParams": parse_url.searchParams,
+                "Hash": parse_url.hash,
+                "query_params": category_subcategory_info,
+                "parse_url": parse_url,
+                "data": (req as CustomRequest).request_data,
+                "client_info": (req as CustomRequest).requestInfo
+            }
+
+            const databaseService = new DatabaseService(uri, dbName);
+
+            const collections = await databaseService.readFromDatabase(req, res, next);
+
+            console.log('db_connection_res:')
+            res.status(200).json({
+                data: collections,
+                info: urlObject
+            });
+
+
+        } catch (error) {
+            console.error("Database connection error:1:", error);
+            next(new Error(`No URI available for MongoDB connection:1: ${error}`));
+
+        }
+
     }
 
     public getAllBlogs: RequestHandler = async (req: Request, res: Response) => {

@@ -30,11 +30,18 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
     res.status(404).json({
         success: false,
         status: 'fail',
-        message: 'Page Not Found',
+        message: 'Route Not Found',
     });
 });
 
-// DB CreateConnection 
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.log('errorHandler::::::')
+    res.status(500).json({
+        success: false,
+        status: 'error',
+        message: `Something went wrong: ${err.message}`,
+    });
+});
 
 (async () => {
     await console.log('dbCreateConnection:server:')
