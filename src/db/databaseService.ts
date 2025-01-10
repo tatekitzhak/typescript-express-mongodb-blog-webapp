@@ -19,7 +19,7 @@ export class DatabaseService extends Database {
     try {
       const { mongoclient, mongoclientDbPing } = await this.connectToDatabase(next);
 
-      // if isDatabaseExists false next new Error message 
+      // if isDatabaseExists false, next new Error message 
       if (!await this.isDatabaseExists(mongoclient, this.db_name)) {
         next(new Error(`Internal server error: missing something: ${this.db_name}`));
       }
@@ -29,7 +29,7 @@ export class DatabaseService extends Database {
       const collections = await db.collection("category").find({}).toArray()
 
       console.log('ping_res:', mongoclientDbPing)
-      console.log('collections::', collections)
+      // console.log('collections::', collections)
 
       return collections;
       

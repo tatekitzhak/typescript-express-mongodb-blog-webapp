@@ -3,6 +3,7 @@ import express, { Application, Request, Response, NextFunction, type Router } fr
 import { blogController, BlogController } from "../controllers/blog.controller";
 import { validateRequest } from "../middleware/validateRequest";
 import { RedisSetOptions } from "../blogs/blog.interface";
+import { getUrlQueryParametersForClient } from "../middleware/handleUrlQueryParametersForClient"
 
 export const blogsRouter: Router = express.Router()
 
@@ -20,6 +21,29 @@ const redisCachingOptions: RedisSetOptions = {
     },
 }
 
+interface ClientInfo {
+    [key: string]: any;
+    url: string;
+    message: string;
+}
+
+interface CustomRequest extends Request {
+    requestInfo?: ClientInfo;
+}
+
+const clientInfoRequestHandler = (req: CustomRequest, res: Response, next: NextFunction, msg: string): void => {
+    const url = req.protocol + '://' + req.get('host') + req.originalUrl;
+    const client_info: ClientInfo = {
+        ...req.headers,
+        url: url,
+        message: msg
+    };
+    console.log('clientInfoRequestHandler:', client_info);
+
+    req.requestInfo = client_info;
+    next();
+};
+
 blogsRouter.get(
     "/blog",
     // authentification,
@@ -27,9 +51,20 @@ blogsRouter.get(
     BlogController.getBlog
 );
 
-blogsRouter.get("/blogs",
+blogsRouter.get("/blog/:id",
     validateRequest(),
     redisCachingMiddleware(redisCachingOptions),
     blogController.getAllBlogs);
+
+
+blogsRouter.route('/blogs').get(function (req, res, next) {
+    getUrlQueryParametersForClient(req, res, next, 'Getting URL Query Parameters for client')
+},
+BlogController.getBlog);
+
+
+// blogsRouter.get("/blogAll",
+//     handleOriginalUrlQuery(req, res, next, 'Blog'),
+//     blogController.getAllBlogs);
 
 blogsRouter.get("/favourites", blogController.getFavourites);

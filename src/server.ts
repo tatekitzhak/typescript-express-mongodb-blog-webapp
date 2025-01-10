@@ -1,10 +1,13 @@
 import express, { type Express, Request, Response, NextFunction } from "express";
+import cors from "cors";
 
 import { blogsRouter } from "./routes/blog.routes";
-
-// import {errorHandler} from "./errors/errorHandler";
+import { corsOptions } from "./middleware/corsOptions";
 
 const app: Express = express();
+
+
+app.use(cors(corsOptions));
 
 // Set the application to trust the reverse proxy
 // app.set("trust proxy", true);
@@ -12,8 +15,6 @@ const app: Express = express();
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Routes
 app.use("/", blogsRouter);
 
 app.get("/", (req: Request, res: Response) => {

@@ -1,10 +1,6 @@
 import { Request, Response, RequestHandler, NextFunction } from 'express';
 
-import url from 'url';
-import querystring from 'querystring';
-
 import { DatabaseService } from '../db/databaseService';
-
 import * as database from "../blogs/blogs.database";
 import { UnitUser, EnumServiceGetOrderBy } from "../blogs/blog.interface";
 import { ConnectionConfig } from "../configs";
@@ -22,42 +18,18 @@ let dbName = process.env.MONGODB_DB;
 export class BlogController {
 
     static async getBlog(req: Request, res: Response, next: NextFunction) {
+        console.log('BlogControllerreq.originalUrl::', (req as CustomRequest).requestInfo)
+        const getUrlQueryParametersForClient = (req as CustomRequest).requestInfo;
 
         try {
-            const full_url_path = `${req.protocol}://${req.get('host')}${req.originalUrl}`,
-                parse_url_path = url.parse(full_url_path),
-                category_subcategory_info = querystring.parse(parse_url_path.query || ''),
-                subcategory_id = category_subcategory_info['subcategory_id'],
-                parse_url = new URL(full_url_path);
+            
+            const dbServiceInstance = new DatabaseService(uri, dbName);
 
-            //Print the url object.
-            const urlObject = {
-                "Href": parse_url.href,
-                "Origin": parse_url.origin,
-                "Protocol": parse_url.protocol,
-                "Username": parse_url.username,
-                "Password": parse_url.password,
-                "Host": parse_url.host,
-                "Hostname": parse_url.hostname,
-                "Port": parse_url.port,
-                "Pathname": parse_url.pathname,
-                "Search": parse_url.search,
-                "SearchParams": parse_url.searchParams,
-                "Hash": parse_url.hash,
-                "query_params": category_subcategory_info,
-                "parse_url": parse_url,
-                "data": (req as CustomRequest).request_data,
-                "client_info": (req as CustomRequest).requestInfo
-            }
+            const categoryCollections = await dbServiceInstance.readFromDatabase(req, res, next);
 
-            const databaseService = new DatabaseService(uri, dbName);
-
-            const collections = await databaseService.readFromDatabase(req, res, next);
-
-            console.log('db_connection_res:')
             res.status(200).json({
-                data: collections,
-                info: urlObject
+                data: categoryCollections,
+                clientInfo: getUrlQueryParametersForClient
             });
 
 
@@ -116,7 +88,7 @@ export class BlogController {
 
     };
 
-    static async createMovie(req: Request, res: Response) {
+    static async createBlog(req: Request, res: Response) {
         /* 
                 const { title, description, director, year, rating, image, cast } =
                     req.body;
@@ -136,7 +108,7 @@ export class BlogController {
                     */
     }
 
-    static async updateMovie(req: Request, res: Response) {
+    static async updateBlog(req: Request, res: Response) {
         /* 
                 const { id } = req.params;
                 const { title, description, director, year, rating, image, cast } =
@@ -159,7 +131,7 @@ export class BlogController {
                      */
     }
 
-    static async deleteMovie(req: Request, res: Response) {
+    static async deleteBlog(req: Request, res: Response) {
         /* 
                 const { id } = req.params;
                 const movieRepository = AppDataSource.getRepository(Movie);
