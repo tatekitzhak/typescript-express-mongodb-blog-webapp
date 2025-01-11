@@ -11,19 +11,22 @@ interface CustomRequest extends Request {
     requestInfo?: any;
 }
 
-let uri: string = ConnectionConfig.db['uri'] as string;
-let dbName = process.env.MONGODB_DB;
+interface  CustomCollection {
+    [key: string]: string;
+}
 
+let uri = ConnectionConfig.db['uri'] as string;
+let dbName = ConnectionConfig.db['dbName'] as string;
+let collections = ConnectionConfig.db['collection'] as CustomCollection;
 
 export class BlogController {
 
     static async getBlog(req: Request, res: Response, next: NextFunction) {
-        console.log('BlogControllerreq.originalUrl::', (req as CustomRequest).requestInfo)
         const getUrlQueryParametersForClient = (req as CustomRequest).requestInfo;
 
         try {
-            
-            const dbServiceInstance = new DatabaseService(uri, dbName);
+
+            const dbServiceInstance = new DatabaseService(uri, dbName, collections);
 
             const categoryCollections = await dbServiceInstance.readFromDatabase(req, res, next);
 

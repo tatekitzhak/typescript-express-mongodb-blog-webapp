@@ -4,13 +4,20 @@ dotenv.config();
 type ConnectionEnv = 'app' | 'db' | 'redis';
 
 interface ConnectionInfo {
-    [name: string]: string | number | undefined
+    [name: string]: string | number | undefined | Record<string, string>;
 };
 
 export const ConnectionConfig: Record<ConnectionEnv, ConnectionInfo> = {
     "db": {
         uri: process.env.MONGODB_URI,
-        dbName: process.env.MONGODB_DB
+        dbName: process.env.MONGODB_DB,
+        collection: {
+            categoryBlog: 'category',
+            subcategoryBlog: 'subcategory',
+            topicBlog: 'topic',
+            articleBlog: 'article',
+            videoBlog: 'video'
+        }
     },
     "redis": {
         host: process.env['REDIS_HOST'],

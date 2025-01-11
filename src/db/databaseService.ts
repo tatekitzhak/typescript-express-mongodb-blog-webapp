@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { Database } from './database';
-import { ConnectionConfig } from "../configs";
-
 
 export class DatabaseService extends Database {
-  constructor(uri: string, dbName?: string) {
+  private collection?: Record<string, string>;
+  constructor(uri: string, dbName?: string, collection?: Record<string, string>) {
     super(uri, dbName);
+
+    this.collection = collection;
   }
 
   // is database exists
@@ -14,34 +15,133 @@ export class DatabaseService extends Database {
     return dbName ? arrayOfDatabases.includes(dbName) : false;
   }
 
+  async aggregateFromCategory() {
+/* 
+    const pipe_to_subcategories = [
+      {
+        $lookup: {
+          from: subcategoryBlog,
+          localField: "subcategory_ref_ids",
+          foreignField: "_id",
+          as: "blogSubcategory"
+        }
+      },
+      {
+        $unwind: {
+          path: "$blogSubcategory",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          "_id": {
+            _id: "$_id",
+            title: "$title",
+            description: "$description"
+          },
+          "blogSubcategory": { "$push": "$blogSubcategory" }
+        }
+      }
+    ];
+ */
+  }
+
   async readFromDatabase(req: Request, res: Response, next: NextFunction) {
 
     try {
+
+      let subcategoryBlog: string = '';
+
+      if (this.collection) {
+        subcategoryBlog = this.collection['subcategoryBlog']
+      } else {
+        console.log('collection is undefined');
+      }
+
+
+      
+      const pipe_to_subcategories = [
+        {
+          $lookup: {
+            from: subcategoryBlog,
+            localField: "subcategory_ref_ids",
+            foreignField: "_id",
+            // let: { customer_id: "$_id" }, // Define the local variable to use in the pipeline
+            pipeline: [
+              // { $match: { $expr: { $eq: ["$customerId", "$$customer_id"] } } },
+              { 
+                $lookup: {
+                from: "topic",
+                localField: "topic_ref_ids",
+                foreignField: "_id",
+                as: "blogTopicPipeline"
+              },
+            },
+              {
+                $unwind: {
+                  path: "$blogTopicPipeline",
+                  preserveNullAndEmptyArrays: true
+                }
+              },
+              {
+                $group: {
+                  "_id": {
+                    _id: "$_id",
+                    title: "$title",
+                    description: "$description"
+                  },
+                  "blogTopicPipeline": { "$push": "$blogTopicPipeline" }
+                }
+              }
+            ],
+            as: "blogSubcategory"
+          }
+        },
+        {
+          $unwind: {
+            path: "$blogSubcategory",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $group: {
+            "_id": {
+              _id: "$_id",
+              title: "$title",
+              description: "$description"
+            },
+            "blogSubcategory": { "$push": "$blogSubcategory" }
+          }
+        }
+      ];
+      
+
+
       const { mongoclient, mongoclientDbPing } = await this.connectToDatabase(next);
 
       // if isDatabaseExists false, next new Error message 
       if (!await this.isDatabaseExists(mongoclient, this.db_name)) {
         next(new Error(`Internal server error: missing something: ${this.db_name}`));
       }
-      
+
       const db = mongoclient.db(this.db_name);
       // console.log('isDatabaseExists:', await this.isDatabaseExists(mongoclient, this.db_name))
-      const collections = await db.collection("category").find({}).toArray()
+      const collections = await db.collection("category").aggregate(pipe_to_subcategories).toArray()
 
       console.log('ping_res:', mongoclientDbPing)
       // console.log('collections::', collections)
 
       return collections;
-      
+
     } catch (error) {
       console.error(`No URI available for MongoDB connection: ${error}`);
-      next(new Error(`Internal server error: We're missing something:`)); 
-      
+      next(new Error(`Internal server error: We're missing something:`));
+
     }
     finally {
       // console.log("Database connection closed");
     }
-   
+
   }
 
 

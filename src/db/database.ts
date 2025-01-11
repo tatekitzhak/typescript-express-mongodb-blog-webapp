@@ -1,17 +1,11 @@
 import { Collection, Db, Document, MongoClient } from "mongodb";
 // const { DatabaseConnectionError } = require('../utils/errorHandler/DatabaseError');
 import { Request, Response, NextFunction } from 'express';
-import { ConnectionConfig } from "../configs";
-
-let uri: string = ConnectionConfig.db['uri'] as string;
-// let dbName = process.env.MONGODB_DB;
-
 
 export class Database {
   private readonly URI: string;
   public db_name?: string;
   public dbClient: any;
-  connected = false;
 
   constructor(uri: string, dbName?: string) {
     this.URI = `${uri}`
